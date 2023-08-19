@@ -19,15 +19,16 @@ import java.util.regex.Matcher;
 
 @Service
 public class SearchService {
+    private final CloseableHttpClient httpClient;
     private final Environment environment;
 
     @Autowired
-    public SearchService(Environment environment) {
+    public SearchService(CloseableHttpClient httpClient, Environment environment) {
+        this.httpClient = httpClient;
         this.environment = environment;
     }
-
     public int getSearchResultsCount(String query) throws IOException {
-        try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
+
             String apiKey = environment.getProperty("api.key");
             String searchUrl = "https://api.example.com/search?q=" + URLEncoder.encode(query, "UTF-8") + "&key=" + apiKey;
             HttpGet httpGet = new HttpGet(searchUrl);
@@ -38,7 +39,6 @@ public class SearchService {
                 return parseSearchResultsCount(results.text());
             }
         }
-    }
 
     private int parseSearchResultsCount(String resultStats) {
 
